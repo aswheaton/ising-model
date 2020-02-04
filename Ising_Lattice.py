@@ -1,8 +1,9 @@
 #! usr/bin/env/python
 
 import numpy as np
-
-from threading import Thread
+import matplotlib.pyplot as plt
+import matplotlib.animation as animation
+# from threading import Thread
 
 class Ising_Lattice(object):
     """
@@ -18,7 +19,6 @@ class Ising_Lattice(object):
         self.temp = kwargs.get("temperature")
         self.size = kwargs.get("size")
         self.mode = kwargs.get("mode")
-        self.anim = kwargs.get("animate")
         self.build()
 
     def build(self):
@@ -69,7 +69,7 @@ class Ising_Lattice(object):
             # TODO: Move kawasaki/glauber differentiation into the delta_energy
             method.
         """
-        if self.dyn == "glauber":
+        if self.dynamic == "glauber":
             indices = (np.random.randint(0, self.size[0]),
                         np.random.randint(0, self.size[1])
                         )
@@ -78,7 +78,7 @@ class Ising_Lattice(object):
             elif np.random.rand() < np.exp(-self.delta_energy(indices) / self.temp):
                 self.lattice[indices] *= -1
 
-        elif self.dyn == "kawasaki":
+        elif self.dynamic == "kawasaki":
             indices_i = (np.random.randint(0, self.size[0]),
                         np.random.randint(0, self.size[1])
                         )
@@ -103,7 +103,35 @@ class Ising_Lattice(object):
                     self.lattice[indices_i] *= -1
 
     def magnetization(self):
+        """
+        """
         return(np.sum(self.lattice))
+
+    def total_energy(self):
+        """
+        """
+        total_energy = 0.0
+        for n in range(self.size[0]):
+            for m in range(self.size[1]):
+                total_energy += - self.lattice[n,m] * (
+                                self.lattice[self.bc((n-1, m))]
+                                + self.lattice[self.bc((n+1,m))]
+                                + self.lattice[self.bc((n, m-1))]
+                                + self.lattice[self.bc((n, m+1))]
+                                )
+        return(total_energy)
+
+    def sweep(self, *args):
+        """
+            Steps the simulation forward by attempting 1000 spin flips.
+            Takes *args for call by animation.FuncAnimation instance.
+            # TODO: Make make number of attempted spin flips configurable!
+            # TODO: Determine the purpose of the trailing comma in return().
+        """
+        for i in range(self.size[0]*self.size[1]):
+            self.attempt_flip()
+        self.image.set_array(self.lattice)
+        return(self.image,)
 
     def run(self, **kwargs):
         """
@@ -115,7 +143,37 @@ class Ising_Lattice(object):
             (Currently number of attempted flips is more than those specified by
             the user by a factor of 10^3 due to the way animate() method works.)
         """
+        self.dynamic = kwargs.get("dynamic")
+        self.max_iter = kwargs.get("max_iter")
 
-        self.dyn = kwargs.get("dynamic")
-        simulation = Thread(target=self.attempt_flip)
-        simulation.start()
+        if kwargs.get("animate") == True:
+            self.figure = plt.figure()
+            self.image = plt.imshow(self.lattice, animated=True)
+            # TODO: Make line wrapping PEP8 compliant, here.
+            self.animation = animation.FuncAnimation(self.figure, self.sweep,
+                                                    frames=self.max_iter,
+                                                    repeat=False,
+                                                    interval=50, blit=True
+                                                    )
+            plt.show()
+
+        elif kwargs.get("animate") == False:
+            f = open("dat/"+self.dynamic+"_"+str(self.temp)+".csv","w+")
+            print(self.total_energy())
+            print(self.magnetization())
+            f.write(str(self.total_energy())+", "+str(self.magnetization()))
+            for sweep in range(self.max_iter):
+                print("Sweep "+sweep+" of "+self.max_iter+" for T="+self.temp+".\r"),
+                self.sweep()
+                f.write(str(self.total_energy())+", "+str(self.magnetization()))
+            f.close()
+
+
+    def exportAnimation(self, filename, dotsPerInch):
+        """
+            Exports the animation to a .gif file without compression. (Linux
+            distributions with package "imagemagick" only. Files can be large!)
+            # TODO: rename this for PEP8 compliance and add support for other
+            image writing packages.
+        """
+        self.animation.save(filename, dpi=dotsPerInch, writer="imagemagick")
