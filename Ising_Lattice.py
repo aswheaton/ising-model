@@ -160,7 +160,7 @@ class Ising_Lattice(object):
 
         elif kwargs.get("animate") == False:
             f = open("dat/"+self.dynamic+"_"+str(self.temp)+".csv","w+")
-            f.write(str(self.total_energy())+", "+str(self.magnetization()))
+            f.write(str(self.total_energy())+", "+str(self.magnetization())+"\n")
             for sweep in range(self.max_iter):
                 # print("Sweep "+str(sweep)+" of "+str(self.max_iter)+" for T="+str(self.temp)+".", end="\r"),
                 self.sweep()

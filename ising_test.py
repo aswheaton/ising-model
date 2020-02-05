@@ -10,7 +10,7 @@ for temp in temperatures:
 
     simulation = Ising_Lattice(temperature=temp, size=(50,50), mode="r")
 
-    simulation.run(dynamic="kawasaki", animate=False, max_iter=100)
+    simulation.run(dynamic="kawasaki", animate=False, max_iter=10000)
 
 toc = time.clock()
 print("Executed script in "+str(toc-tic)+" seconds.")
