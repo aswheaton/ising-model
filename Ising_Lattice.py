@@ -113,7 +113,7 @@ class Ising_Lattice(object):
         total_energy = 0.0
         for n in range(self.size[0]):
             for m in range(self.size[1]):
-                total_energy += - self.lattice[n,m] * (
+                total_energy += - 0.5 * self.lattice[n,m] * (
                                 self.lattice[self.bc((n-1, m))]
                                 + self.lattice[self.bc((n+1,m))]
                                 + self.lattice[self.bc((n, m-1))]
