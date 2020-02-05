@@ -130,8 +130,9 @@ class Ising_Lattice(object):
         """
         for i in range(self.size[0]*self.size[1]):
             self.attempt_flip()
-        self.image.set_array(self.lattice)
-        return(self.image,)
+        if self.animate == True:
+            self.image.set_array(self.lattice)
+            return(self.image,)
 
     def run(self, **kwargs):
         """
@@ -145,7 +146,7 @@ class Ising_Lattice(object):
         """
         self.dynamic = kwargs.get("dynamic")
         self.max_iter = kwargs.get("max_iter")
-
+        self.animate = kwargs.get("animate")
         if kwargs.get("animate") == True:
             self.figure = plt.figure()
             self.image = plt.imshow(self.lattice, animated=True)
@@ -159,13 +160,12 @@ class Ising_Lattice(object):
 
         elif kwargs.get("animate") == False:
             f = open("dat/"+self.dynamic+"_"+str(self.temp)+".csv","w+")
-            print(self.total_energy())
-            print(self.magnetization())
             f.write(str(self.total_energy())+", "+str(self.magnetization()))
             for sweep in range(self.max_iter):
-                print("Sweep "+sweep+" of "+self.max_iter+" for T="+self.temp+".\r"),
+                print("Sweep "+str(sweep)+" of "+str(self.max_iter)+" for T="+str(self.temp)+".", end="\r"),
                 self.sweep()
-                f.write(str(self.total_energy())+", "+str(self.magnetization()))
+                f.write(str(self.total_energy())+", "+str(self.magnetization())+"\n")
+            print("")
             f.close()
 
 

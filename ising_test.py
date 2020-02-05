@@ -1,5 +1,16 @@
+import numpy as np
 from Ising_Lattice import Ising_Lattice
+import time
 
-simulation = Ising_Lattice(temperature=1.5, size=(50,50), mode="r")
+temperatures = np.arange(1.0,3.1,0.1)
 
-simulation.run(dynamic="kawasaki", animate=False, max_iter=10000)
+tic = time.clock()
+
+for temp in temperatures:
+
+    simulation = Ising_Lattice(temperature=temp, size=(50,50), mode="r")
+
+    simulation.run(dynamic="kawasaki", animate=False, max_iter=100)
+
+toc = time.clock()
+print("Executed script in "+str(toc-tic)+" seconds.")
