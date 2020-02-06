@@ -14,11 +14,9 @@ for dynamic in ["glauber"]:
             for filename in files:
                 if str(temp) in filename and dynamic in filename:
                     data = np.loadtxt(root+filename,delimiter=", ")
-                    spec_heat, susc = np.var(data[99:,:],axis=0)
-                    plt.plot(range(len(data[:,0])),data[:,0])
-                    plt.show()
-                    specific_heats.append(spec_heat)
-                    susceptibilities.append(susc)
+                    energies, magnets = np.array(data[:,0]), np.array(data[:,1])
+                    specific_heats.append(np.var(energies) / 2500 / temp)
+                    susceptibilities.append(np.var(magnets) / 2500 / temp**2)
 
 plt.plot(temperatures,specific_heats)
 plt.show()
