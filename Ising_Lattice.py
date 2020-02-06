@@ -89,7 +89,7 @@ class Ising_Lattice(object):
                         np.random.randint(0, self.size[1])
                         )
 
-            if self.lattice[indices_i] == -self.lattice[indices_j]:
+            if self.lattice[indices_i] != self.lattice[indices_j]:
                 self.lattice[indices_j] *= -1
                 i_energy = self.delta_energy(indices_i)
                 self.lattice[indices_j] *= -1
@@ -99,9 +99,9 @@ class Ising_Lattice(object):
                 delta_energy = i_energy + j_energy
 
                 if delta_energy <= 0.0:
-                    self.lattice[indices_j] *= 1
+                    self.lattice[indices_j] *= -1
                 elif np.random.rand() < np.exp(- delta_energy / self.temp):
-                    self.lattice[indices_j] *= 1
+                    self.lattice[indices_j] *= -1
                 else:
                     self.lattice[indices_i] *= -1
 
@@ -122,7 +122,7 @@ class Ising_Lattice(object):
     def magnetization(self):
         """
         """
-        return(np.sum(self.lattice))
+        return(np.absolute(np.sum(self.lattice)))
 
     def sweep(self, *args):
         """
