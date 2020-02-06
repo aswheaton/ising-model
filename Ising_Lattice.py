@@ -26,12 +26,15 @@ class Ising_Lattice(object):
             Creates a new class attribute of type ndarray and fills it with spin
             values, depending on the user specified mode.
         """
-        if self.mode == "r":
+        if self.mode == "rand":
             self.lattice = np.random.choice(a=[-1,1], size=self.size)
-        if self.mode == "h":
+        if self.mode == "high":
             self.lattice = np.ones(self.size, dtype=int)
-        if self.mode == "l":
+        if self.mode == "low":
             self.lattice = - np.ones(self.size, dtype=int)
+        if self.mode == "split":
+            self.lattice = np.ones(self.size, dtype=int)
+            self.lattice[:,25:] *= -1
 
     def bc(self, indices):
         """
@@ -55,11 +58,11 @@ class Ising_Lattice(object):
         n, m = indices
         # TODO: Make line wrapping PEP8 compliant, here.
         delta_energy = 2 * self.lattice[n,m] * (
-                    self.lattice[self.bc((n-1, m))]
-                    + self.lattice[self.bc((n+1,m))]
-                    + self.lattice[self.bc((n, m-1))]
-                    + self.lattice[self.bc((n, m+1))]
-                    )
+                        self.lattice[self.bc((n-1, m))]
+                        + self.lattice[self.bc((n+1,m))]
+                        + self.lattice[self.bc((n, m-1))]
+                        + self.lattice[self.bc((n, m+1))]
+                        )
         return(delta_energy)
 
     def attempt_flip(self):
@@ -102,24 +105,24 @@ class Ising_Lattice(object):
                 else:
                     self.lattice[indices_i] *= -1
 
-    def magnetization(self):
-        """
-        """
-        return(np.sum(self.lattice))
-
     def total_energy(self):
         """
         """
         total_energy = 0.0
         for n in range(self.size[0]):
             for m in range(self.size[1]):
-                total_energy += - 0.5 * self.lattice[n,m] * (
+                total_energy += - self.lattice[n,m] * (
                                 self.lattice[self.bc((n-1, m))]
                                 + self.lattice[self.bc((n+1,m))]
                                 + self.lattice[self.bc((n, m-1))]
                                 + self.lattice[self.bc((n, m+1))]
                                 )
-        return(total_energy)
+        return(total_energy / 2.0)
+
+    def magnetization(self):
+        """
+        """
+        return(np.sum(self.lattice))
 
     def sweep(self, *args):
         """
@@ -160,11 +163,12 @@ class Ising_Lattice(object):
 
         elif kwargs.get("animate") == False:
             f = open("dat/"+self.dynamic+"_"+str(self.temp)+".csv","w+")
-            f.write(str(self.total_energy())+", "+str(self.magnetization())+"\n")
+            # f.write(str(self.total_energy())+", "+str(self.magnetization())+"\n")
             for sweep in range(self.max_iter):
-                # print("Sweep "+str(sweep)+" of "+str(self.max_iter)+" for T="+str(self.temp)+".", end="\r"),
+                print("Sweep "+str(sweep)+" of "+str(self.max_iter)+" for T="+str(self.temp)+".", end="\r"),
                 self.sweep()
-                f.write(str(self.total_energy())+", "+str(self.magnetization())+"\n")
+                if sweep > 99 and sweep % 10 == 0:
+                    f.write(str(self.total_energy())+", "+str(self.magnetization())+"\n")
             # print("")
             f.close()
 
