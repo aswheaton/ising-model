@@ -4,9 +4,9 @@ import time
 
 from Ising_Lattice import Ising_Lattice
 
-dynamic = sys.argv[1]
+dynamic = str(sys.argv[1])
 temp = float(sys.argv[2])
-mode = sys.argv[3]
+mode = str(sys.argv[3])
 n = int(sys.argv[4])
 m = int(sys.argv[5])
 
@@ -23,7 +23,7 @@ try:
         simulation.run(dynamic=dynamic, animate=True, max_iter=10000)
 
 except IndexError:
-    
+
     if dynamic == "glauber":
         for temp in temperatures:
             simulation = Ising_Lattice(temperature=temp, size=(n,m), mode=mode)
