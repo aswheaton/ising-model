@@ -8,10 +8,10 @@ def mean(data):
     return(np.mean(data))
 
 def heat_capacity(data, temp):
-    return(np.var(data) / 2500 / temp)
+    return(np.var(data) / 2500.0 / temp**2)
 
 def susceptibility(data, temp):
-    return(np.var(magnets) / 2500 / temp**2)
+    return(np.var(magnets) / 2500.0 / temp)
 
 def bootstrap_error(full_data, statistic, temp):
     statistics = []
@@ -43,7 +43,7 @@ for dynamic in ["glauber","kawasaki"]:
                     heat_capacities_errors.append(bootstrap_error(energies, heat_capacity, temp))
                     susceptibilities.append(susceptibility(magnets, temp))
                     susceptibilities_errors.append(bootstrap_error(magnets, susceptibility, temp))
-    print(susceptibilities_errors)
+
     fig, axes = plt.subplots(2,2)
     fig.suptitle(dynamic+" dynamics")
     axes[0,0].plot(temperatures,mean_energies)
